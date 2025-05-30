@@ -1,8 +1,9 @@
 import os
 from glob import glob
-
-# 根目录
-root_dir = "/scratch/s6029388/CosyVoice/ESD_split"
+#Step1:Generate two kinds of txt format files for data process
+#Step2:Write prompt, such as speaker_id
+# Root directory containing data splits
+root_dir = "/path/to/dataset"
 splits = ["train", "test"]
 
 for split in splits:
@@ -18,7 +19,7 @@ for split in splits:
             if not os.path.isdir(emotion_path):
                 continue
 
-            # 处理 .original.txt 和 .normalized.txt 文件
+            # Locate all .original.txt and .normalized.txt files
             txt_files = glob(os.path.join(emotion_path, "*.original.txt")) + \
                         glob(os.path.join(emotion_path, "*.normalized.txt"))
 
@@ -26,20 +27,20 @@ for split in splits:
                 with open(txt_file, 'r', encoding='utf-8') as f:
                     line = f.readline().strip()
 
-                # 替换前缀 ID 为 speaker ID（即文件名前四位）
+                # Replace prefix with speaker ID
                 fname = os.path.basename(txt_file)
-                utt_id = fname.split('.')[0]  # e.g. 0004_000365
+                utt_id = fname.split('.')[0]  # e.g., spk001_000123
                 spk_id = utt_id[:4]
 
                 if '<|endofprompt|>' in line:
                     _, text = line.split('<|endofprompt|>', 1)
-                    new_line = f"{spk_id}<|endofprompt|>{text}"
+                    new_line = f"{spk_id}<|endofprompt|>{text.strip()}"
                 else:
-                    print(f"⚠️ 格式错误: {txt_file}")
+                    print(f"[Warning] Unexpected format: {txt_file}")
                     continue
 
-                # 覆盖写入
+                # Overwrite the file
                 with open(txt_file, 'w', encoding='utf-8') as f:
                     f.write(new_line + '\n')
 
-                print(f"✅ 处理完成: {txt_file}")
+                print(f"Processed: {txt_file}")
