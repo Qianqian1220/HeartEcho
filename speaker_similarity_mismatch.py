@@ -2,26 +2,35 @@ from resemblyzer import VoiceEncoder, preprocess_wav
 import numpy as np
 from pathlib import Path
 
-# 初始化 encoder
+# Initialize speaker encoder
 encoder = VoiceEncoder()
 
-# 文件路径配对
+# Define file pair: (generated, reference)
 pairs = [
-    ("5.wav", "/scratch/s6029388/CosyVoice/ESD_split/test/0006/Happy/0006_000723.wav")
+    ("generated_sample.wav", "reference_speaker/emotion/utterance.wav")
 ]
 
-# 所有输出
-print("Speaker Similarity Results (Cosine):\n")
+# Set root directories
+generated_root = Path("/path/to/generated_audio")
+reference_root = Path("/path/to/reference_dataset")
 
-for gen_file, ref_file in pairs:
+print("Speaker Similarity (Cosine Distance):\n")
+
+for gen_filename, ref_rel_path in pairs:
     try:
-        gen_wav = preprocess_wav(Path(f"/scratch/s6029388/CosyVoice/{gen_file}"))
-        ref_wav = preprocess_wav(Path(ref_file))
-        
+        gen_path = generated_root / gen_filename
+        ref_path = reference_root / ref_rel_path
+
+        gen_wav = preprocess_wav(gen_path)
+        ref_wav = preprocess_wav(ref_path)
+
         gen_embed = encoder.embed_utterance(gen_wav)
         ref_embed = encoder.embed_utterance(ref_wav)
 
-        cosine_sim = np.dot(gen_embed, ref_embed) / (np.linalg.norm(gen_embed) * np.linalg.norm(ref_embed))
-        print(f"{gen_file} vs {Path(ref_file).name}: {cosine_sim:.4f}")
+        cosine_sim = np.dot(gen_embed, ref_embed) / (
+            np.linalg.norm(gen_embed) * np.linalg.norm(ref_embed)
+        )
+
+        print(f"{gen_filename} vs {ref_path.name}: {cosine_sim:.4f}")
     except Exception as e:
-        print(f"Error comparing {gen_file} and {ref_file}: {e}")
+        print(f"[Error] Failed to compare {gen_filename} and {ref_rel_path}: {e}")
