@@ -1,39 +1,43 @@
-### Modules
+## 🧩 Modules
 
-- **ASR (Whisper Base)**: Converts Mandarin player speech to text.
-- **LLM (Yi-1.5-6B-Chat)**: Generates a context-aware, personality-driven response based on character prompt + recognized text.
-- **TTS (CosyVoice2)**: Synthesizes expressive Mandarin speech using speaker ID + emotion prompts.
+- **ASR – Whisper (Base, zh)**  
+  Transcribes Mandarin player speech into text using the base version of Whisper with Chinese language setting.
 
----
+- **LLM – Yi-1.5-6B-Chat**  
+  Generates context-aware, personality-consistent responses based on two inputs: a predefined character description and the transcribed player utterance.
 
-## 📁 Dataset
-
-- **Training Set**: Mandarin ESD (Emotional Speech Dataset)
-  - ~4.86 hours per speaker after cleaning
-  - Used for fine-tuning two emotional male voice profiles
-- **Emotion Labels**: Neutral, Happy, Angry, Sad, Surprised
-- **Test Set**: Balanced across emotion and character identity for MOS-I and similarity evaluations
+- **TTS – CosyVoice2**  
+  Synthesizes expressive Mandarin speech from text, using a speaker ID and reference audio prompt to match target emotion and voice profile.
 
 ---
 
-## 🧪 Evaluation
+## 📚 Dataset
 
-### Subjective Test: MOS-I (Mean Opinion Score for Identity)
+- **Fine-Tuning Set**  
+  Mandarin subset of the *Emotional Speech Dataset (ESD)*, cleaned to ~4.86 hours per speaker. Used to fine-tune two male emotional profiles for TTS synthesis.
 
-- Evaluated with 32 valid human raters
-- Conditions: 3 emotional styles × 2 characters + 2 mismatch controls
-- Results show strong character consistency (avg. MOS-I > 3.5) and clear mismatch detection (avg. MOS-I < 2.8)
+- **Emotion Categories**  
+  Neutral, Happy, Angry, Sad, Surprised — each with parallel utterances for consistent emotion modeling.
 
-### Objective Test: Speaker Similarity
-
-- Measured using `resemblyzer`
-- Cross-checked between real and synthetic audio per speaker
-- Achieved similarity scores of 0.5967 and 0.5799 for cross-speaker TTS
+- **Test Set**  
+  Curated for balance across character identity and emotion, used for both subjective (MOS-I) and objective (speaker similarity) evaluations.
 
 ---
 
-## 🛠 Installation
+## 📊 Evaluation
 
-**Dependencies**:
-```bash
-pip install -r requirements.txt
+### 🎧 Subjective Evaluation: MOS-I (Mean Opinion Score for Identity)
+
+- **Participants**: 32 valid human raters  
+- **Conditions**: 6 main settings (3 emotions × 2 characters) + 2 mismatch controls  
+- **Findings**:  
+  - Character-consistent samples scored above 3.5 on average  
+  - Mismatched samples scored below 2.8, indicating effective identity modeling
+
+### 🎙️ Objective Evaluation: Speaker Similarity
+
+- **Method**: Cosine similarity computed using `resemblyzer` embeddings  
+- **Results**:  
+  - Speaker A (real) vs. Speaker B (synthesized, happy): **0.5967**  
+  - Speaker B (real) vs. Speaker A (synthesized, surprise): **0.5799**  
+  - Indicates moderately strong identity retention across cross-speaker synthesis
