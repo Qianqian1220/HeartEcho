@@ -31,13 +31,13 @@
 - **Participants**: 32 valid human raters  
 - **Conditions**: 6 main settings (3 emotions × 2 characters) + 2 mismatch controls  
 - **Findings**:  
-  - Character-consistent samples scored above 3.5 on average  
+  - Character-consistent samples scored 3.55 on average  
   - Mismatched samples scored below 2.8, indicating effective identity modeling
 
 ### 🎙️ Objective Evaluation: Speaker Similarity
 
 - **Method**: Cosine similarity computed using `resemblyzer` embeddings  
 - **Results**:  
-  - Speaker A (real) vs. Speaker B (synthesized, happy): **0.5967**  
-  - Speaker B (real) vs. Speaker A (synthesized, surprise): **0.5799**  
-  - Indicates moderately strong identity retention across cross-speaker synthesis
+  - Speaker A (real vs. synthesized): **0.81**  
+  - Speaker B (real vs. synthesized): **0.84**  
+  - Confirms high similarity between natural and generated voices within the same speaker identity
