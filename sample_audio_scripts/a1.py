@@ -2,25 +2,28 @@ import sys
 import torch
 import torchaudio
 from transformers import AutoTokenizer, AutoModelForCausalLM
+from pathlib import Path
 
-# 加载 CosyVoice 模块
+# Add CosyVoice2 to Python path
 sys.path.append('third_party/Matcha-TTS')
 from cosyvoice.cli.cosyvoice import CosyVoice2
 from cosyvoice.utils.file_utils import load_wav
 
-# ========== 参数配置（来自问卷表格） ==========
-output_wav = "roleA_surprise_01.wav"
-text_input = "刚刚我打开门，发现你给我点了外卖！惊喜到我了！"
+# ========== Configuration ==========
+output_wav = "output/roleA_surprise_01.wav"
+text_input = "I just opened the door and saw that you ordered food for me! What a surprise!"
 speaker_id = "0006"
-prompt_path = "/scratch/s6029388/CosyVoice/ESD_split/test/0006/Surprise/0006_001425.wav"
+prompt_path = "data/test/0006/Surprise/example_prompt.wav"
+
+# System prompt describing the character style
 system_prompt = (
-    "冷峻守礼系：克制沉稳、低音磁性、礼貌周全。外表冷酷、不善言辞，却在关键时刻展现出细腻与体贴。"
+    "Reserved Gentleman: Calm, low-pitched voice with polite and restrained tone. "
+    "Appears cold and quiet, but shows warmth and attentiveness in key moments."
 )
 
-# ========== 加载 Yi 模型 ==========
-print("🤖 Loading Yi-1.5-6B-Chat model...")
+# ========== Load LLM ==========
 model_id = "01-ai/Yi-1.5-6B-Chat"
-cache_dir = "/scratch/s6029388/huggingface"
+cache_dir = "cache/huggingface"
 
 tokenizer = AutoTokenizer.from_pretrained(
     model_id,
@@ -35,10 +38,10 @@ llm_model = AutoModelForCausalLM.from_pretrained(
     cache_dir=cache_dir
 )
 
-# ========== 构造清洁 Prompt ==========
+# ========== Construct prompt and generate reply ==========
 messages = [
     {"role": "system", "content": system_prompt},
-    {"role": "user", "content": f"你是一位冷峻守礼的男朋友，简短自然地回复女生这句话。\n\n女生说：{text_input}"}
+    {"role": "user", "content": f"You are a reserved boyfriend. Reply naturally and briefly to the following:\n\nShe says: {text_input}"}
 ]
 prompt = tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
 
@@ -54,11 +57,11 @@ outputs = llm_model.generate(
 
 reply_raw = tokenizer.decode(outputs[0], skip_special_tokens=True)
 reply = reply_raw.split("assistant")[-1].strip()
-reply_clean = reply.split("。")[0] + "。"
+reply_clean = reply.split("。")[0] + "。" if "。" in reply else reply
 
-print(f"\n🧡 模型生成回复：{reply_clean}")
+print(f"Generated reply: {reply_clean}")
 
-# ========== 加载 CosyVoice 模型 ==========
+# ========== Load CosyVoice2 model ==========
 cosyvoice = CosyVoice2(
     'pretrained_models/CosyVoice2-0.5B',
     load_jit=False,
@@ -69,8 +72,11 @@ cosyvoice = CosyVoice2(
 
 prompt_audio = load_wav(prompt_path, 16000)
 
-# ========== 合成语音 ==========
-print("🎤 合成语音中...")
-for i, j in enumerate(cosyvoice.inference_instruct2(reply_clean, speaker_id, prompt_audio, stream=False)):
-    torchaudio.save(output_wav, j['tts_speech'], cosyvoice.sample_rate)
-    print(f"✅ 合成完成：{output_wav}")
+# ========== Synthesize speech ==========
+print("Synthesizing speech...")
+
+Path(output_wav).parent.mkdir(parents=True, exist_ok=True)
+
+for i, result in enumerate(cosyvoice.inference_instruct2(reply_clean, speaker_id, prompt_audio, stream=False)):
+    torchaudio.save(output_wav, result['tts_speech'], cosyvoice.sample_rate)
+    print(f"Synthesis complete: {output_wav}")
