@@ -4,26 +4,24 @@ import torchaudio
 from transformers import AutoTokenizer, AutoModelForCausalLM
 from pathlib import Path
 
-# Add CosyVoice2 to Python path
-sys.path.append('third_party/Matcha-TTS')
+# Add CosyVoice2 to Python import path
+sys.path.append('path/to/Matcha-TTS')
 from cosyvoice.cli.cosyvoice import CosyVoice2
 from cosyvoice.utils.file_utils import load_wav
 
 # ========== Configuration ==========
-output_wav = "output/roleA_surprise_01.wav"
-text_input = "I just opened the door and saw that you ordered food for me! What a surprise!"
-speaker_id = "0006"
-prompt_path = "data/test/0006/Surprise/example_prompt.wav"
+output_wav = "output/xxx.wav"  # Path to save synthesized audio
+text_input = "Your input text here."  # Text to be responded to
+speaker_id = "speaker_id"  # Target speaker identity
+prompt_path = "path/to/prompt.wav"  # Reference audio path for prompting
 
-# System prompt describing the character style
-system_prompt = (
-    "Reserved Gentleman: Calm, low-pitched voice with polite and restrained tone. "
-    "Appears cold and quiet, but shows warmth and attentiveness in key moments."
-)
+# Prompt defining the target speaking style
+system_prompt = "Character description for the language model."
 
-# ========== Load LLM ==========
-model_id = "01-ai/Yi-1.5-6B-Chat"
-cache_dir = "cache/huggingface"
+# ========== Load Language Model ==========
+print("Loading language model...")
+model_id = "01-ai/Yi-1.5-6B-Chat"  # Replace with your desired model
+cache_dir = "path/to/cache"  # Huggingface cache directory
 
 tokenizer = AutoTokenizer.from_pretrained(
     model_id,
@@ -38,10 +36,10 @@ llm_model = AutoModelForCausalLM.from_pretrained(
     cache_dir=cache_dir
 )
 
-# ========== Construct prompt and generate reply ==========
+# ========== Generate Response ==========
 messages = [
     {"role": "system", "content": system_prompt},
-    {"role": "user", "content": f"You are a reserved boyfriend. Reply naturally and briefly to the following:\n\nShe says: {text_input}"}
+    {"role": "user", "content": f"You are a character with the above traits. Reply naturally to this message:\n\nUser: {text_input}"}
 ]
 prompt = tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
 
@@ -61,9 +59,9 @@ reply_clean = reply.split("。")[0] + "。" if "。" in reply else reply
 
 print(f"Generated reply: {reply_clean}")
 
-# ========== Load CosyVoice2 model ==========
+# ========== Load CosyVoice2 ==========
 cosyvoice = CosyVoice2(
-    'pretrained_models/CosyVoice2-0.5B',
+    'path/to/pretrained_model',
     load_jit=False,
     load_trt=False,
     fp16=False,
@@ -72,7 +70,7 @@ cosyvoice = CosyVoice2(
 
 prompt_audio = load_wav(prompt_path, 16000)
 
-# ========== Synthesize speech ==========
+# ========== Synthesize Speech ==========
 print("Synthesizing speech...")
 
 Path(output_wav).parent.mkdir(parents=True, exist_ok=True)
