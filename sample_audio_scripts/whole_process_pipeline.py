@@ -9,19 +9,19 @@ sys.path.append('path/to/Matcha-TTS')
 from cosyvoice.cli.cosyvoice import CosyVoice2
 from cosyvoice.utils.file_utils import load_wav
 
-# ========== Configuration ==========
-output_wav = "output/xxx.wav"  # Path to save synthesized audio
-text_input = "Your input text here."  # Text to be responded to
-speaker_id = "speaker_id"  # Target speaker identity
-prompt_path = "path/to/prompt.wav"  # Reference audio path for prompting
+# Set paths and input text
+output_wav = "output/xxx.wav"
+text_input = "Your input text here."
+speaker_id = "speaker_id"
+prompt_path = "path/to/prompt.wav"
 
-# Prompt defining the target speaking style
+# Define character prompt for the language model
 system_prompt = "Character description for the language model."
 
-# ========== Load Language Model ==========
+# Load language model and tokenizer
 print("Loading language model...")
-model_id = "01-ai/Yi-1.5-6B-Chat"  # Replace with your desired model
-cache_dir = "path/to/cache"  # Huggingface cache directory
+model_id = "01-ai/Yi-1.5-6B-Chat"
+cache_dir = "path/to/cache"
 
 tokenizer = AutoTokenizer.from_pretrained(
     model_id,
@@ -36,7 +36,7 @@ llm_model = AutoModelForCausalLM.from_pretrained(
     cache_dir=cache_dir
 )
 
-# ========== Generate Response ==========
+# Generate a character-specific response from the language model
 messages = [
     {"role": "system", "content": system_prompt},
     {"role": "user", "content": f"You are a character with the above traits. Reply naturally to this message:\n\nUser: {text_input}"}
@@ -59,7 +59,7 @@ reply_clean = reply.split("。")[0] + "。" if "。" in reply else reply
 
 print(f"Generated reply: {reply_clean}")
 
-# ========== Load CosyVoice2 ==========
+# Load pretrained CosyVoice2 model
 cosyvoice = CosyVoice2(
     'path/to/pretrained_model',
     load_jit=False,
@@ -68,11 +68,11 @@ cosyvoice = CosyVoice2(
     use_flow_cache=False
 )
 
+# Load reference audio for style prompting
 prompt_audio = load_wav(prompt_path, 16000)
 
-# ========== Synthesize Speech ==========
+# Run speech synthesis
 print("Synthesizing speech...")
-
 Path(output_wav).parent.mkdir(parents=True, exist_ok=True)
 
 for i, result in enumerate(cosyvoice.inference_instruct2(reply_clean, speaker_id, prompt_audio, stream=False)):
