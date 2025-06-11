@@ -1,43 +1,37 @@
-## 🧩 Modules
+# Otome Game Talking NPCs
 
-- **ASR – Whisper (Base, zh)**  
-  Transcribes Mandarin player speech into text using the base version of Whisper with Chinese language setting.
+This project gives voice to your game boyfriend.
 
-- **LLM – Yi-1.5-6B-Chat**  
-  Generates context-aware, personality-consistent responses based on two inputs: a predefined character description and the transcribed player utterance.
+No more canned voice lines — each response is generated and spoken in real time, adapting to what the player says. Think of it as a flirty NPC that actually listens.
 
-- **TTS – CosyVoice2**  
-  Synthesizes expressive Mandarin speech from text, using a speaker ID and reference audio prompt to match target emotion and voice profile.
+## What It Does
+
+You talk → He listens → He thinks → He talks back  
+All in Mandarin, all in character.
+
+Behind the scenes:
+
+- **Whisper (ASR)** — turns your voice into text  
+- **Yi-1.5-6B-Chat (LLM)** — writes the perfect in-character reply  
+- **CosyVoice2 (TTS)** — speaks it with the right emotion and voice style
+
+## Why It's Fun
+
+- Every line feels personal — no two responses are exactly the same  
+- Supports multiple character types with distinct speaking styles  
+- Emotions like *happy*, *calm*, and *surprised* are prompt-controlled  
+- Designed for Mandarin otome game scenarios  
+- Runs in real time (on GPU) — perfect for live interaction
+
+## Data Used
+
+Fine-tuned on a Mandarin emotional speech dataset with multiple male speakers and five basic emotions. Each voice is aligned to a fictional persona with prompt-based emotion control.
+
+## Try It
+
+Set your mic, pick your NPC, say something.  
+He'll talk back. Sweet or sarcastic — depends on who you chose.
 
 ---
 
-## 📚 Dataset
-
-- **Fine-Tuning Set**  
-  Mandarin subset of the *Emotional Speech Dataset (ESD)*, cleaned to ~4.86 hours per speaker. Used to fine-tune two male emotional profiles for TTS synthesis.
-
-- **Emotion Categories**  
-  Neutral, Happy, Angry, Sad, Surprised — each with parallel utterances for consistent emotion modeling.
-
-- **Test Set**  
-  Curated for balance across character identity and emotion, used for both subjective (MOS-I) and objective (speaker similarity) evaluations.
-
----
-
-## 📊 Evaluation
-
-### 🎧 Subjective Evaluation: MOS-I (Mean Opinion Score for Identity)
-
-- **Participants**: 32 valid human raters  
-- **Conditions**: 6 main settings (3 emotions × 2 characters) + 2 mismatch controls  
-- **Findings**:  
-  - Character-consistent samples scored 3.55 on average  
-  - Mismatched samples scored below 2.8, indicating effective identity modeling
-
-### 🎙️ Objective Evaluation: Speaker Similarity
-
-- **Method**: Cosine similarity computed using `resemblyzer` embeddings  
-- **Results**:  
-  - Speaker A (real vs. synthesized): **0.81**  
-  - Speaker B (real vs. synthesized): **0.84**  
-  - Confirms high similarity between natural and generated voices within the same speaker identity
+Built for players who want more than "Press X to romance".
